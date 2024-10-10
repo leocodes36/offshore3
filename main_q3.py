@@ -10,6 +10,7 @@ Copyright (c) 2024 DTU Wind and Energy Systems
 from functionsPy.waves import *
 from functionsPy.wind import *
 from functionsPy.common import *
+from functionsPy.rotor import *
 import pylab as plt
 from main_q1 import fp
 
@@ -29,11 +30,36 @@ wind3 = calculateKaimalSpectrum(wind3)
 wind3 = generateRandomPhases(wind3)
 wind3 = calculateWindTimeSeries(wind3)
 
+
 # Plot results and check if they're reasonable
+plt.figure()
 plt.plot(wind3["t"], wind3["V_hub"])
+plt.xlim(wind3["t"].min(), wind3["t"].max())
 plt.xlabel("Time [s]")
 plt.ylabel("Wind speeed at hub [m/s]")
 plt.grid(True)
-plt.show()
+
+# Mean, std, max and min V_hub
+print(f'Mean of V_hub is {np.mean(wind3["V_hub"])}[m/s]')
+print(f'STD of V_hub is {np.std(wind3["V_hub"])}[m/s]')
+print(f'Min and Max of V_hub is {np.min(wind3["V_hub"])}[m/s] & {np.max(wind3["V_hub"])}[m/s]')
 
 # calculate Fwind from the wind time series
+windForce = np.zeros_like(wind3["t"])
+for i, V in enumerate(wind3["V_hub"]):
+    windForce[i] += F_wind(iea22mw, wind3["V_10"], V)
+wind3["F_wind"] = windForce
+
+# plot F_wind
+plt.figure()
+plt.plot(wind3["t"], wind3["F_wind"]/1e6)
+plt.xlabel("Time [s]")
+plt.xlim(wind3["t"].min(), wind3["t"].max())
+plt.ylabel("Force wind at hub [MN]")
+plt.grid(True)
+plt.show()
+
+# calculate force statistics
+print(f'Mean of F_wind is {np.mean(wind3["F_wind"])/1e6}[MN]')
+print(f'STD of F_wind is {np.std(wind3["F_wind"])/1e6}[MN]')
+print(f'Min and Max of F_wind is {np.min(wind3["F_wind"])/1e6}[MN] & {np.max(wind3["F_wind"])/1e6}[MN]')

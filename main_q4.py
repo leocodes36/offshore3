@@ -55,7 +55,8 @@ waveForce["F"], waveForce["M"] = np.zeros_like(waves4["t"]), np.zeros_like(waves
 
 for i_, t_ in enumerate(waves4["t"]):
 	# FIXME: call the forceIntegrate function to get the wave loads
-    waveForce["F"][i_], waveForce["M"][i_]  = 0., 0.
+    # NEEDS FIXING: GIVES NEGATIVE VALUES
+    waveForce["F"][i_], waveForce["M"][i_]  = forceIntegrate(monopileDict, waves4["u"][i_], waves4["ut"][i_], (waves4["z"]+h), 0)
     
 # Wind force
 
@@ -68,14 +69,53 @@ windForce["F"], windForce["M"] = np.zeros_like(wind4["t"]), np.zeros_like(wind4[
 
 for i_, t_ in enumerate(wind4["t"]):
 	# FIXME: call the F_wind to get the total wind force
-    windForce["F"][i_] = 0.
+    # FIXED
+    windForce["F"][i_] = F_wind(iea22mw, wind4["V_10"], wind4["V_hub"][i_])
     windForce["M"][i_] = windForce["F"][i_]*(monopileDict["zBeamNodal"][-1]+h)
     
 plt.figure()
 plt.plot(waves4["t"], waves4["eta"])
+plt.xlim(waves4["t"].min(), waves4["t"].max())
+plt.xlabel("Time [s]")
+plt.ylabel("Free surface elevation [m]")
+plt.grid(True)
 
 plt.figure()
-plt.plot(waveForce["t"], waveForce["F"])
+plt.plot(waveForce["t"], waveForce["F"]/1e6)
+plt.xlim(waves4["t"].min(), waves4["t"].max())
+plt.xlabel("Time [s]")
+plt.ylabel("Wave force [MN]")
+plt.grid(True)
+
+plt.figure()
+plt.plot(waveForce["t"], waveForce["M"]/1e6)
+plt.xlim(waves4["t"].min(), waves4["t"].max())
+plt.xlabel("Time [s]")
+plt.ylabel("Wave moment at mudline [MNm]")
+plt.grid(True)
+
+plt.figure()
+plt.plot(windForce["t"], windForce["F"]/1e6)
+plt.xlim(wind4["t"].min(), wind4["t"].max())
+plt.xlabel("Time [s]")
+plt.ylabel("Wind force [MN]")
+plt.grid(True)
+
+plt.figure()
+plt.plot(windForce["t"], windForce["M"]/1e6)
+plt.xlim(wind4["t"].min(), wind4["t"].max())
+plt.xlabel("Time [s]")
+plt.ylabel("Wind moment at mudline [MNm]")
+plt.grid(True)
+plt.show()
+
+stats = "Load", "Mean", "Sigma", "Min", "Max"
+stats_waveForce = "Wave Force", np.mean(waveForce["F"]), np.std(waveForce["F"]), np.min(waveForce["F"]), np.max(waveForce["F"])
+stats_waveMoment = "Wave Moment", np.mean(waveForce["M"]), np.std(waveForce["M"]), np.min(waveForce["M"]), np.max(waveForce["M"])
+stats_windForce = "Wind Force", np.mean(windForce["F"]), np.std(windForce["F"]), np.min(windForce["F"]), np.max(windForce["F"])
+stats_windMoment = "Wind Moment", np.mean(windForce["M"]), np.std(windForce["M"]), np.min(windForce["M"]), np.max(windForce["M"])
+
+print(stats, stats_waveForce, stats_waveMoment, stats_windForce, stats_windMoment, sep="/")
 
 # Save for later use
 os.makedirs(savedStates, exist_ok=True)
