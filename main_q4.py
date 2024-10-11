@@ -104,17 +104,18 @@ plt.plot(windForce["t"], waveForce["M"]/1e6, label="M_Waves")
 plt.plot(windForce["t"], totalMoment/1e6, label="M_Total")
 plt.xlim(wind4["t"].min(), wind4["t"].max())
 plt.xlabel("Time [s]")
-plt.ylabel("Wind moment at mudline [MNm]")
+plt.ylabel("Moments at mudline [MNm]")
 plt.grid(True)
+plt.legend()
 plt.show()
 
 # calculate statistics
 stat_labels = "Load", "Mean", "Sigma", "Min", "Max"
-stats_waveForce = "Wave Force [MN]", np.mean(waveForce["F"]), np.std(waveForce["F"]), np.min(waveForce["F"]), np.max(waveForce["F"])
-stats_waveMoment = "Wave Moment [MNm]", np.mean(waveForce["M"]), np.std(waveForce["M"]), np.min(waveForce["M"]), np.max(waveForce["M"])
-stats_windForce = "Wind Force [MN]", np.mean(windForce["F"]), np.std(windForce["F"]), np.min(windForce["F"]), np.max(windForce["F"])
-stats_windMoment = "Wind Moment [MNm]", np.mean(windForce["M"]), np.std(windForce["M"]), np.min(windForce["M"]), np.max(windForce["M"])
-stats_totalMoment = "Total Moment [MNm]", np.mean(totalMoment), np.std(totalMoment), np.min(totalMoment), np.max(totalMoment)
+stats_waveForce = "Wave Force [N]", np.mean(waveForce["F"]), np.std(waveForce["F"]), np.min(waveForce["F"]), np.max(waveForce["F"])
+stats_waveMoment = "Wave Moment [Nm]", np.mean(waveForce["M"]), np.std(waveForce["M"]), np.min(waveForce["M"]), np.max(waveForce["M"])
+stats_windForce = "Wind Force [N]", np.mean(windForce["F"]), np.std(windForce["F"]), np.min(windForce["F"]), np.max(windForce["F"])
+stats_windMoment = "Wind Moment [Nm]", np.mean(windForce["M"]), np.std(windForce["M"]), np.min(windForce["M"]), np.max(windForce["M"])
+stats_totalMoment = "Total Moment [Nm]", np.mean(totalMoment), np.std(totalMoment), np.min(totalMoment), np.max(totalMoment)
 
 # Creating DataFrame
 data = [stats_waveForce, stats_waveMoment, stats_windForce, stats_windMoment, stats_totalMoment]
