@@ -68,7 +68,8 @@ def dqdt( t, q,
 
         # Monopile modal acceleration
         # FIXME: implement formula for alphaDotDot as a function of GF, GD, GK, GM
-        alphaDotDot = 0.
+        # FIX: alphaDotDot = (GF-structure["GD"]*alphaDot-structure["GK"]*alpha)/(structure["GM"])
+        alphaDotDot = (GF-structure["GD"]*alphaDot-structure["GK"]*alpha)/(structure["GM"])
         
         dqdtOut = np.zeros(2)
         dqdtOut[0] = alphaDot
@@ -90,7 +91,8 @@ def GFCalc(t, alphaDot, structure, rotor, waves, wind):
     df = forceDistributed(structure, u, ut, z, x_dot_submerged)
     
     # FIXME: Add the generalized forcing from the waves
-    GFWaves = 0.;
+    # FIX: GFWaves = np.trapz(df*phiNodalSubmerged, phiNodalSubmerged)
+    GFWaves = np.trapz(df*phiNodalSubmerged, phiNodalSubmerged)
     
     # Wind contribution to Generalized Forcing
     i_ = lookup(wind["t"], t)
@@ -99,12 +101,14 @@ def GFCalc(t, alphaDot, structure, rotor, waves, wind):
     
     # FIXME: Compute the velocity of the hub due to
     # structural deformation.
-    x_dot_rotor = 0.
+    # FIX: x_dot_rotor = alphaDot*phiHub
+    x_dot_rotor = alphaDot*phiHub
     
     # FIXME: add the generalized forcing from the wind
+    # FIX: GFWind = F_aero*phiHub
     F_aero = F_wind(rotor, V_10, V_hub, x_dot_rotor)
-    GFWind = 0.
+    GFWind = F_aero*phiHub
     
-    GF = GFWind + GFWaves;
+    GF = GFWind + GFWaves
     
     return GF

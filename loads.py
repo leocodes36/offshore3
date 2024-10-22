@@ -21,7 +21,7 @@ def calculateStaticWindLoads(wind, rotor, structure, q):
     for i_, t_ in enumerate(wind["t"]):
         # FIXME: calculate the wind force using the 
         # relative velocity between the waves and the structure
-        F_with_rel_motion[i_] = 0.;
+        F_with_rel_motion[i_] = F_wind(rotor, wind["V_10"], wind["V_hub"][i_], x_dot_hub[i_])
 
     # Calculate depth and zHub
     z = structure["zBeamNodal"]
@@ -55,7 +55,7 @@ def calculateStaticWaveLoads(waves, structure, q):
         
         # FIXME: calculate the wave distributed force using the 
         # relative velocity between the waves and the structure        
-        df = 0.;
+        df = forceDistributed(structure, u, ut, z, x_dot_submerged[i_])
         
         F_with_rel_motion[i_] = np.trapz(df, zSubmerged)
         M_with_rel_motion[i_] = np.trapz(df*(zSubmerged+h), zSubmerged)
@@ -84,7 +84,7 @@ def calculateDynamicLoads(structure, q):
     outputDict["t"] = q["t"]    
     for i_, t_ in enumerate(q["t"]):
         # FIXME: insert formula for dynamic loads here
-        outputDict["M"][i_] = 0.
-        outputDict["F"][i_] = 0.
+        outputDict["M"][i_] = -1 * np.sum(structure['rhoAElement']*q['alphaDotDot'][i_]*structure["phiElement"]*(zElement+h)*dz)
+        outputDict["F"][i_] = -1 * np.sum(structure['rhoAElement']*q['alphaDotDot'][i_]*structure["phiElement"]*dz)
 
     return outputDict

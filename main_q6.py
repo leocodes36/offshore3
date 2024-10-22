@@ -2,6 +2,8 @@ import numpy as np
 from functionsPy.integration import ode4, dqdt
 from functionsPy.common import loadFromJSON, saveToJSON
 import os.path
+import pylab as plt
+import pandas as pd
 
 # Location of input files
 # Shorten the imports
@@ -24,7 +26,6 @@ q0 = np.array([1.0,0.])
 q = ode4(dqdt, tIntegration, q0, monopileDict, iea22mw,
                 waves5, wind5)
 
-import pylab as plt
 phiNodalTop = monopileDict["phiNodal"][-1]
 xTTop = q[:,0]*phiNodalTop
 xDotTTop = q[:,1]*phiNodalTop
@@ -35,10 +36,20 @@ ax[0].grid();ax[1].grid()
 ax[1].set_xlabel("t[s]")
 ax[0].set_ylabel("XTTop[m]")
 ax[1].set_ylabel("XTDotTop[m/s]")
+plt.show()
 
 alpha = dict()
 alpha["t"] = tIntegration;
 alpha["alpha"] = q[:,0];
 alpha["alphaDot"] = q[:,1];
+
+plt.plot(alpha["t"], alpha["alpha"])
+plt.xlabel("Time [s]")
+plt.ylabel("alpha_1")
+plt.grid()
+plt.show()
+
+DataFrame = pd.DataFrame.from_dict(alpha)
+print(DataFrame.describe())
 
 saveToJSON(alpha, ss("q.json"))
