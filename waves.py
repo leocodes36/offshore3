@@ -1,5 +1,6 @@
 import numpy as np
 from .common import dispersion
+from .common import pad2
 
 def calculateJONSWAPSpectrum(waveDict):
            
@@ -75,9 +76,60 @@ def calculateKinematics(inputDict):
     k = dispersion(f, inputDict["h"])
     
     for i_, _ in enumerate(t):
-        u[i_, :] += np.sum(inputDict["amplitudeSpectrum"][:, None]*omega[:,None]*np.cosh(k[:,None]*(z[None,:]+h))/np.cosh(k[:,None]*h)*np.cos(omega[:,None]*t[i_] + inputDict["randomPhases"][:,None]), axis=0)
+        u[i_, :] += np.sum(inputDict["amplitudeSpectrum"][:, None]*omega[:,None]*np.cosh(k[:,None]*(z[None,:]+h))/np.sinh(k[:,None]*h)*np.cos(omega[:,None]*t[i_] + inputDict["randomPhases"][:,None]), axis=0)
         
-        ut[i_, :] += -np.sum(inputDict["amplitudeSpectrum"][:, None]*omega[:,None]**2*np.cosh(k[:,None]*(z[None,:]+h))/np.cosh(k[:,None]*h)*np.sin(omega[:,None]*t[i_] + inputDict["randomPhases"][:,None]), axis=0)
+        ut[i_, :] += -np.sum(inputDict["amplitudeSpectrum"][:, None]*omega[:,None]**2*np.cosh(k[:,None]*(z[None,:]+h))/np.sinh(k[:,None]*h)*np.sin(omega[:,None]*t[i_] + inputDict["randomPhases"][:,None]), axis=0)
+    
+    outputDict = dict()
+    outputDict.update(inputDict)        
+    outputDict["u"] = u
+    outputDict["ut"] = ut
+    
+    return outputDict
+
+def calculateFreeSurfaceElevationTimeSeriesFFT(waveDict):
+    
+    t = waveDict["t"]
+    f = waveDict["f"]
+    
+    # FIXME: compute the fft kernel and perform the IFFT
+    M = len(t)
+    # FIXED
+    freeSurfTimeSeriesKernel = waveDict["amplitudeSpectrum"]*np.exp(1j*waveDict["randomPhases"])
+    freeSurfTimeSeriesKernelPadded = pad2(freeSurfTimeSeriesKernel, M)
+    freeSurfTimeSeries = M*np.real(np.fft.ifft(freeSurfTimeSeriesKernelPadded))
+    
+    # Store the result
+    outputDict = dict()
+    outputDict.update(waveDict)    
+    outputDict["t"] = t
+    outputDict["eta"] = freeSurfTimeSeries
+        
+    return outputDict
+
+def calculateKinematicsFFT(inputDict):
+    
+    t = inputDict["t"]
+    f = inputDict["f"]
+    omega = 2*np.pi*f
+    
+    h = inputDict["h"]
+    z = inputDict["z"]
+    u = np.zeros((len(t), len(z)))
+    ut = np.zeros((len(t), len(z)))
+    
+    k = dispersion(f, inputDict["h"])
+    M = len(t)
+    
+    for j_, z_ in enumerate(z):
+        
+        # FIXME: compute the fft kernel and perform the IFFT
+        # FIXED
+        uKernel = omega*(np.cosh(k*(z_+h)))/(np.sinh(k*h))*inputDict["amplitudeSpectrum"]*np.exp(1j*inputDict["randomPhases"]) # compute the freq. domain kernel and pad to M
+        u[:, j_] = M*np.real(np.fft.ifft(pad2(uKernel, M))) # perform the IFFT in this line
+        
+        utKernel = omega**2*(np.cosh(k*(z_+h)))/(np.sinh(k*h))*inputDict["amplitudeSpectrum"]*np.exp(1j*inputDict["randomPhases"]) # compute the freq. domain kernel and pad to M
+        ut[:, j_] = M*np.real(np.fft.ifft(pad2(utKernel, M))) # perform the IFFT in this line
     
     outputDict = dict()
     outputDict.update(inputDict)        

@@ -1,4 +1,5 @@
 import numpy as np
+from .common import pad2
 
 def calculateKaimalSpectrum(windDict):
     
@@ -32,6 +33,27 @@ def calculateWindTimeSeries(windDict):
             # FIXME: add random phases
             # FIX: in the cosine + windDict["randomPhases"][j_], randomPhases need to be added to windDict before calling this function!!
             windTimeSeries[i_] += windDict["amplitudeSpectrum"][j_]*np.cos(2*np.pi*f[j_]*t[i_]+ windDict["randomPhases"][j_])
+    
+    # Store the result
+    outputDict = dict()
+    outputDict.update(windDict)
+    outputDict["t"] = t
+    outputDict["V_hub"] = windTimeSeries + windDict["V_10"]
+    
+    return outputDict
+
+def calculateWindTimeSeriesFFT(windDict):
+    t = windDict["t"]
+    f = windDict["f"]
+
+    windTimeSeriesKernel = np.zeros_like(t)
+    windTimeSeries = np.zeros_like(t)
+    
+    M = len(t)
+    # FIXME: compute the fft kernel and perform the IFFT
+    windTimeSeriesKernel = windDict["amplitudeSpectrum"]*np.exp(1j*windDict["randomPhases"])
+    windTimeSeriesKernelPadded = pad2(windTimeSeriesKernel, M)
+    windTimeSeries = M*np.real(np.fft.ifft(windTimeSeriesKernelPadded))
     
     # Store the result
     outputDict = dict()
