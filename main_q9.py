@@ -12,6 +12,7 @@ from functionsPy.common import loadFromJSON, Timer
 import numpy as np
 from functionsPy.runner import runEnvironmentalCondition
 import rainflow
+import matplotlib.pyplot as plt
 
 # Location of input files
 # Shorten the imports
@@ -33,7 +34,7 @@ timeInfo["fHighCut"] = 0.5
 
 # Fatigue parameters
 mFatigue = 4.
-n_eq = 10.**7
+n_eq = 10**7
 
 # Time factor
 # FIXME: Calculate TLife and Tsim
@@ -69,9 +70,11 @@ outputLoads["M"] = outputLoads["M"][Filter]
 # Rainflow count
 # FIXME: do the rainflow counting of fatigue here (see slides for example)
 rainflowCount = np.array(rainflow.count_cycles(outputLoads['M'])) # apply the rainflow.count_cycles routine
-amplitude = rainflowCount[0,:]/2 # transform range into amplitude
+amplitude = rainflowCount[:,0]/2 # transform range into amplitude
 cycles = rainflowCount[:,1] #
-cyclesUpscaled = cycles*TLife/TSim
+cyclesUpscaled = cycles*(TLife/TSim)
 
 # FIXME: calculate the equivalent moment here 
-M_eq = np.sum((amplitude**mFatigue)*(cyclesUpscaled))**(1/mFatigue)
+weighted_cycles = (amplitude**mFatigue)*(cyclesUpscaled)
+M_eq = np.sum(weighted_cycles)**(1/mFatigue)
+print(M_eq)
