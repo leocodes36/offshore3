@@ -38,7 +38,7 @@ n_eq = 10**7
 
 # Time factor
 # FIXME: Calculate TLife and Tsim
-TLife = n_eq/timeInfo['fHighCut']  #so number of equivalent cycles divided by frequency should give light
+TLife = n_eq/timeInfo['fHighCut']  #so number of equivalent cycles divided by frequency should give life
 TSim = TLife * timeInfo['TDur']
 
 # Rescale wind speed by taking into account shear factor 
@@ -73,6 +73,14 @@ rainflowCount = np.array(rainflow.count_cycles(outputLoads['M'])) # apply the ra
 amplitude = rainflowCount[:,0]/2 # transform range into amplitude
 cycles = rainflowCount[:,1] #
 cyclesUpscaled = cycles*(TLife/TSim)
+
+plt.figure(figsize=(10, 6))
+plt.hist(amplitude, bins=30, color='red', edgecolor='black')
+plt.title('Histogram of Moment Amplitudes')
+plt.xlabel('Amplitude')
+plt.ylabel('Frequency')
+plt.grid(axis='y', alpha=0.75)
+plt.show()
 
 # FIXME: calculate the equivalent moment here 
 weighted_cycles = (amplitude**mFatigue)*(cyclesUpscaled)
