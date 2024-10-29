@@ -12,7 +12,7 @@ def Ct(rotorDict, V):
     # FIXED
     if V < rotorDict["V1"]:
         return rotorDict["Ct0"]
-    elif np.logical_and(V>=rotorDict["V1"], V<rotorDict["V2"]):
+    elif np.logical_and(V>=rotorDict["V1"], V<=rotorDict["V2"]):
         return rotorDict["c"]*rotorDict["Ct0"]*V**-2
     else:
         return rotorDict["Ct1"]*np.exp(-rotorDict["a"]*(V-rotorDict["V2"])**rotorDict["b"])
