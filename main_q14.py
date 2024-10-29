@@ -24,7 +24,7 @@ fp = lambda x: os.path.join(inputVariables,x)
 
 
 
-def mimimimimumu (Hs, Tp, gamma=1):
+def findmom (Hs, Tp, gamma=1):
     # Load the rotor and the monopile which do not change
     iea22mw = loadFromJSON(fp("iea22mw.json"))
     iea22mw["ARotor"] = 0.25*np.pi*iea22mw["DRotor"]**2
@@ -120,13 +120,36 @@ mFatigue = 4.
 Hs0 = (np.sum(scatterMat["p"]*scatterMat["Hs"]**mFatigue)/np.sum(scatterMat["p"]))**(1/mFatigue)
 Tz0 = np.sum(scatterMat["p"])/(np.sum(scatterMat["p"]/scatterMat["Tz"]))
 
-ray = np.arange(1.25, 1.3, 0.01)
+"""
+ray = np.arange(0.85, 1.1, 0.01)
 for i, vd in enumerate(ray):
     Hs0 = vd * Hs0
     Tz0 = Tz0/vd
-    if np.abs(mimimimimumu(Hs0, Tz0) - 1.71e8) <= 1e6:
+    if np.abs(mimimimimumu(Hs0, Tz0) - 1.12e8) <= 1e6:
         break
+"""
+target_M_eq = 1.12e8  # Define the target moment value
+tolerance = 1e6       # Define a tolerance range around the target
+vd_values = np.arange(0.98, 1.1, 0.01)  # Range of vd values to iterate over
 
+
+for vd in vd_values:
+    # Adjust Hs0 and Tz0
+    Hs_adjusted = vd * Hs0
+    Tz_adjusted = Tz0 / vd
+    
+    # Call findmom function
+    M_eq = findmom(Hs_adjusted, Tz_adjusted)
+    
+    # Check if M_eq is close enough to the target
+    if np.abs(M_eq - target_M_eq) <= tolerance:
+        print(f"Converged with vd = {vd}")
+        break
+else:
+    print("Did not converge within the vd range")
+    
+    
+    
 print(f"vd is {vd}")
 print(f"Hs0 is {Hs0}")
 print(f"Tz0 is {Tz0}")
