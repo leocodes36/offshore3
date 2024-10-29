@@ -51,7 +51,7 @@ scatterMat["p"] = scatterMat["p"]/np.sum(scatterMat["p"])
 Hs = np.sum(scatterMat["Hs"]*scatterMat["p"])
 Tp = np.sum(scatterMat["Tp"]*scatterMat["p"])
 gamma = np.sum(scatterMat["gammaJS"]*scatterMat["p"])
-Meq = np.sum(scatterMat["MEq"]*scatterMat["p"])
+Meq = np.sum(scatterMat["M_eq"]*scatterMat["p"])
 print(Meq)
 
 """# make waveDict
