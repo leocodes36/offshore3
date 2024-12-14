@@ -49,7 +49,7 @@ for i_, t_ in enumerate(wavesQ1["t"]):
 
 # check spectrum is correct: for 4*sigma_eta vs Hs
 print("4 sigma_eta:", 4*np.std(wavesQ1["eta"]))
-print("Hs", wavesQ1["Hs"])
+print("Hs", wavesQ1["Hs"], "Tp", wavesQ1["Tp"])
 
 # plot result for eta
 plt.figure()
@@ -67,13 +67,29 @@ plt.ylabel("Force [MN]")
 plt.xlim(0, wavesQ1["TDur"])
 plt.grid(True)
 
-# plot result for force
+# plot the spectrum
 plt.figure()
-plt.plot(forceQ1["t"], forceQ1["M"]/1e6)
+plt.plot(wavesQ1["f"], wavesQ1["Spectrum"])
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Spectral Density [m2/s]")
+plt.grid()
+
+# import results from assignment 1
+My_1 = np.loadtxt(fp("Myassignment1.txt"))
+
+# plot result for moment
+plt.figure()
+plt.plot(forceQ1["t"], My_1/1e6, label="Assignment 1")
+plt.plot(forceQ1["t"], forceQ1["M"]/1e6, label="Assignment 3")
 plt.xlabel("Time [s]")
-plt.ylabel("Moment [MN]")
+plt.ylabel("Moment [MNm]")
 plt.xlim(0, wavesQ1["TDur"])
+plt.legend()
 plt.grid(True)
+
+# compare assignment 1 and 3 with stats
+print("Assignment 1 My: mean", np.mean(My_1), "std", np.std(My_1))
+print("Assignment 3 My: mean", np.mean(forceQ1["M"]), "std", np.std(forceQ1["M"]))
 
 # show figures
 plt.show()

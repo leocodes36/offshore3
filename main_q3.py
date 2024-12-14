@@ -12,7 +12,12 @@ from functionsPy.wind import *
 from functionsPy.common import *
 from functionsPy.rotor import *
 import pylab as plt
-from main_q1 import fp
+import os.path
+
+# Location of input files
+# Shorten the imports
+inputVariables = "inputVariables"
+fp = lambda x: os.path.join(inputVariables,x)
 
 # Load the rotor info
 iea22mw = loadFromJSON(fp("iea22mw.json"))
@@ -22,6 +27,7 @@ iea22mw["ARotor"] = iea22mw["DRotor"]**2 * np.pi / 4
 wind3 = loadFromJSON(fp("wind3.json"))
 timeQ3 = loadFromJSON(fp("time.json"))
 wind3.update(timeQ3)
+
 # Calculate the time vector
 wind3["t"] = np.arange(0., wind3["TDur"], wind3["dt"])
 
@@ -29,7 +35,6 @@ wind3["t"] = np.arange(0., wind3["TDur"], wind3["dt"])
 wind3 = calculateKaimalSpectrum(wind3)
 wind3 = generateRandomPhases(wind3)
 wind3 = calculateWindTimeSeries(wind3)
-
 
 # Plot results and check if they're reasonable
 plt.figure()
@@ -55,7 +60,7 @@ plt.figure()
 plt.plot(wind3["t"], wind3["F_wind"]/1e6)
 plt.xlabel("Time [s]")
 plt.xlim(wind3["t"].min(), wind3["t"].max())
-plt.ylabel("Force wind at hub [MN]")
+plt.ylabel("Wind forcing at hub [MN]")
 plt.grid(True)
 plt.show()
 

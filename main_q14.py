@@ -120,14 +120,6 @@ mFatigue = 4.
 Hs0 = (np.sum(scatterMat["p"]*scatterMat["Hs"]**mFatigue)/np.sum(scatterMat["p"]))**(1/mFatigue)
 Tz0 = np.sum(scatterMat["p"])/(np.sum(scatterMat["p"]/scatterMat["Tz"]))
 
-"""
-ray = np.arange(0.85, 1.1, 0.01)
-for i, vd in enumerate(ray):
-    Hs0 = vd * Hs0
-    Tz0 = Tz0/vd
-    if np.abs(mimimimimumu(Hs0, Tz0) - 1.12e8) <= 1e6:
-        break
-"""
 target_M_eq = 1.12e8  # Define the target moment value
 tolerance = 1e6       # Define a tolerance range around the target
 vd_values = np.arange(0.98, 1.1, 0.01)  # Range of vd values to iterate over

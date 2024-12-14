@@ -13,6 +13,8 @@ import numpy as np
 from functionsPy.runner import runEnvironmentalCondition
 import rainflow
 import matplotlib.pyplot as plt
+from functionsPy.waves import *
+from functionsPy.wind import *
 
 # Location of input files
 # Shorten the imports
@@ -42,17 +44,12 @@ n_eq = 10**7
 TLife = 25*365*24*60*60
 TSim = timeInfo['TDur'] - timeInfo["TTrans"]
 
-# Rescale wind speed by taking into account shear factor 
-# FIXME: include the correct scaleWind parameter using a shear factor of 1/7 and factor 2 on hub height
-# FIXED
-shear_factor = 1/7
-factor_hubheight = 2
-scaleWind = factor_hubheight**shear_factor
+# no rescaling, since wind4.json contains already scaled windspeed 17.66 m/s
 
 # Load the environmental conditions
 wind = loadFromJSON(fp("wind4.json"))    
 waves = loadFromJSON(fp("wave1.json"))
-wind["V_10"] = wind["V_10"]*scaleWind
+wind["V_10"] = wind["V_10"]
 wind["randomSeed"], waves["randomSeed"] = 1, 2
 
 # Run the loads calculation
@@ -69,9 +66,9 @@ outputLoads["t"] = outputLoads["t"][Filter]
 outputLoads["F"] = outputLoads["F"][Filter]
 outputLoads["M"] = outputLoads["M"][Filter]
 
-plt.plot(outputLoads["t"], outputLoads["M"])
+plt.plot(outputLoads["t"], outputLoads["M"]/1e6)
 plt.xlabel("Time [s]")
-plt.ylabel("Moment [Nm]")
+plt.ylabel("Moment [MNm]")
 plt.grid()
 
 # Rainflow count
@@ -82,17 +79,33 @@ amplitude = rainflowCount[:,0]/2 # transform range into amplitude
 cycles = rainflowCount[:,1] #
 cyclesUpscaled = cycles*(TLife/TSim)
 
-plt.figure(figsize=(10, 6))
-plt.hist(amplitude, bins=30, color='red', edgecolor='black')
+plt.figure()
+plt.hist(amplitude/1e6, bins=30, color='red', edgecolor='black')
 plt.title('Histogram of Moment Amplitudes')
-plt.xlabel('Amplitude')
+plt.xlabel('Amplitude [MNm]')
 plt.ylabel('Frequency')
 plt.grid(axis='y', alpha=0.75)
 
+# plot wind and wave Spectra
+wind = calculateKaimalSpectrum(wind)
+waves = calculateJONSWAPSpectrum(waves)
+
+# calculate natural frequency
+omega0 = np.sqrt(monopile["GK"]/monopile["GM"])
+print(f"Nat. Frequency:{omega0}")
+
+plt.figure()
+plt.plot(wind["f"], wind["Spectrum"]/np.max(wind["Spectrum"]), label="Kaimal Spectrum (Wind)")
+plt.plot(waves["f"], waves["Spectrum"]/np.max(waves["Spectrum"]), label="JONSWAP Spectrum (Waves)")
+plt.axvline(x=0.16, color="red", linestyle="--", linewidth=0.5, label="Natural Frequency")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Normalised Spectral Density [-]")
+plt.grid()
+plt.legend()
 
 # FIXME: calculate the equivalent moment here 
 # FIXED
 weighted_cycles = (amplitude**mFatigue)*(cyclesUpscaled/n_eq)
 M_eq = np.sum(weighted_cycles)**(1/mFatigue)
-print(M_eq)
+print(f"M_eq:{M_eq}")
 plt.show()

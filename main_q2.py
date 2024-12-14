@@ -24,7 +24,9 @@ thrust["T"] = np.zeros_like(thrust["V"])
 for i_, V_ in enumerate(thrust["V"]):
     thrust["T"][i_] = F_wind(iea22mw, V_, V_)   
 
+plt.figure()
 plt.plot(thrust["V"], thrust["T"]/1e6)
+plt.axvline(16, color="black", linestyle="--")
 plt.xlabel("Wind speed [m/s]")
 plt.ylabel("Thrust force [MN]")
 plt.xlim(thrust["V"].min(), thrust["V"].max())

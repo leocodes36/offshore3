@@ -116,7 +116,7 @@ for i_, ec_ in table40.iterrows():
         table40.loc[i_, "M_eq"] = np.sum(weighted_cycles)**(1/mFatigue)
 
 # main_q11
-M_eq_lifetime = (np.sum(table40["M_eq"]**mFatigue*table40["p"]))**(1/mFatigue)
+M_eq_lifetime = (np.sum(table40["p"]*table40["M_eq"]**mFatigue))**(1/mFatigue)
 print("lifetime equivalent moment",M_eq_lifetime)
 # main_q12
 # calculate Dlife

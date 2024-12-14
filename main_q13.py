@@ -48,11 +48,9 @@ scatterMat = pd.read_csv(fp("scatterMatrix.csv"))
 
 # normalise p to be 1
 scatterMat["p"] = scatterMat["p"]/np.sum(scatterMat["p"])
-Hs = np.sum(scatterMat["Hs"]*scatterMat["p"])
-Tp = np.sum(scatterMat["Tp"]*scatterMat["p"])
-gamma = np.sum(scatterMat["gammaJS"]*scatterMat["p"])
-Meq = np.sum(scatterMat["M_eq"]*scatterMat["p"])
-print(Meq)
+# calculate lifetime equivalent moment
+Meq_life = (np.sum(scatterMat["p"]*scatterMat["M_eq"]**mFatigue))**(1/mFatigue) # they have different!!
+print(f"lifetime equivalent moment:{Meq_life}")
 
 """# make waveDict
 waves = loadFromJSON(fp("wave1.json"))
